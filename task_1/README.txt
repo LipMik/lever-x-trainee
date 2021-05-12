@@ -11,8 +11,6 @@ optional arguments:
 
 EXAMPLE:
 
-python main.py -s Data/students.json -r Data/rooms.json -f json -res result
+python main.py -s data/students.json -r data/rooms.json -f json -res result
 
-python main.py -s students.json -r rooms.json -f xml -res result
-
-
+python main.py -s data/students.json -r data/rooms.json -f xml -res result
