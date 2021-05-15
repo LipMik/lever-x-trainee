@@ -2,69 +2,66 @@ import json
 from argparse import ArgumentParser
 
 
-class Room(object):
+class Room:
+
+    isinstances = {}
 
     def __init__(self, room_number):
         self.room_number = room_number
+        self.students = {self.room_number: []}
+        self.isinstances[room_number] = self
 
-    def create_students_list(self, student_file):
-        """
-        :input: path to student file
-        :return: { self.room_number: [student_name_1, ... student_name_N ] }
-        """
+    def appending_st_to_room(self, name):
+        self.students[self.room_number].append(name)
 
-        with open(student_file, "r") as stud_file:
-            students = json.load(stud_file)
-
-            student_list = []
-            room_students_dict = {}
-
-            for line in students:
-
-                if line['room'] == self.room_number:
-                    student_list.append(line['name'])
-
-            room_students_dict[self.room_number] = student_list
-
-        return room_students_dict
+        return self.students
 
 
-def file_room_reading(rooms):
+def reading_room_file(r_file):
     """
     This function creates list of room numbers from rooms.json
-    :param rooms: path to room-file
+    :param r_file: path to room-file
+
     :return: room_list: list of room numbers
     """
-
     room_list = []
 
-    # reading json-file, creating a list of unique room numbers
-    with open(rooms, "r") as room_file:
-        room = json.load(room_file)
+    with open(r_file, 'r') as file:
+        rooms = json.load(file)
 
-        for line in room:
-            if line['id'] is not room_list:
-                room_list.append(line['id'])
+        for line in rooms:
+            room_list.append(line['id'])
 
     return room_list
 
 
-def creating_result_dict(room_list, student_file):
+def creating_result(room_list, stud_file_path):
     """
-    This function creates the resulting dictionary in the following format
-        { room_number_1 : [name_1, ... name_N], ... room_number_N : [name_1, ... name_N] }
+    This function reads student file line by line and creates instances of Room class
 
-    :param room_list: list of room numbers
-    :param student_file: path to students.json
-    :return: result_dict:
+    :param room_list: list of room number from room.json
+    :param stud_file_path: path to student.json
+    :return: result_dict : { room_number : [name1, ... name_N ]}
     """
-    # iterating through the list of rooms, creating class objects
+
     result_dict = {}
-    for index in room_list:
-        room = Room(index)
-        students_list = room.create_students_list(student_file)
 
-        result_dict.update(students_list)
+    with open(stud_file_path, 'r') as st_file:
+        students = json.load(st_file)
+        created_instances = []
+
+        for line in students:
+
+            if (line['room'] in created_instances) and (line['room'] in room_list):
+                room = Room.isinstances[line['room']]
+                student = room.appending_st_to_room(line['name'])
+                result_dict[room.room_number] = student[room.room_number]
+
+            elif line['room'] in room_list:
+                room = Room(line['room'])
+                created_instances.append(line['room'])
+                student = room.appending_st_to_room(line['name'])
+                result_dict[room.room_number] = student[room.room_number]
 
     return result_dict
 
@@ -105,12 +102,22 @@ def main():
     args = parser.parse_args()
 
     try:
-        room_list = file_room_reading(args.rooms)
-        room_student_dict = creating_result_dict(room_list, args.students)
-        if args.format == 'json':
-            writing_json_file(room_student_dict, args.result)
-        elif args.format == 'xml':
-            writing_xml_file(room_student_dict, args.result)
+        if args.format.lower() == 'json' or args.format.lower() == 'xml':
+            pass
+
+        else:
+            raise ValueError
+    except ValueError:
+        print('Invalid output file extension. Try again!')
+
+    try:
+        room_list = reading_room_file(args.rooms)
+        result = creating_result(room_list, args.students)
+
+        if args.format.lower() == 'json':
+            writing_json_file(result, args.result)
+        elif args.format.lower() == 'xml':
+            writing_xml_file(result, args.result)
 
     except Exception as exc:
         print('Try again!', exc)
