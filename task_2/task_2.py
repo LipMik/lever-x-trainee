@@ -1,7 +1,6 @@
 class Version:
     def __init__(self, version):
         self.version = tuple(x for x in version.split('.'))
-        # print(self.version)
 
     def __le__(self, other):
         return self.version <= other.version
@@ -42,5 +41,7 @@ print(Version('1.3.42') == Version('42.3.1'))  # False+
 print(Version('0.3.0b') < Version('1.2.42'))  # True+
 print(Version('1.3.0') > Version('0.3.0'))  # True+
 print(Version('1.1.3') < Version('2.2.3'))  # True+
+
+
 if __name__ == "__main__":
     main()
