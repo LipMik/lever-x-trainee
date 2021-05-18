@@ -31,10 +31,10 @@ def main():
         ("1.0.0-rc.1", "1.0.0"),
     ]
 
-    # for version_1, version_2 in to_test:
-    #     assert Version(version_1) < Version(version_2), "le failed"
-    #     assert Version(version_2) > Version(version_1), "ge failed"
-    #     assert Version(version_2) != Version(version_1), "neq failed"
+    for version_1, version_2 in to_test:
+        assert Version(version_1) < Version(version_2), "le failed"
+        assert Version(version_2) > Version(version_1), "ge failed"
+        assert Version(version_2) != Version(version_1), "neq failed"
 
 
 print(Version('1.3.42') == Version('42.3.1'))  # False+
