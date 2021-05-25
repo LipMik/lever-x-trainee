@@ -77,6 +77,7 @@ def writing_json_file(result_dict, output_file_name):
     json_data = json.dumps(result_dict)
     with open('{}.json'.format(output_file_name), "w", encoding="utf-8") as file:
         file.write(json_data)
+        file.close()
 
 
 def writing_xml_file(result_dict, output_file_name):
@@ -89,13 +90,13 @@ def writing_xml_file(result_dict, output_file_name):
     """
     with open('{}.xml'.format(output_file_name), "w", encoding="utf-8") as xml_file:
         xml_file.write(str(result_dict))
-    xml_file.close()
+        xml_file.close()
 
 
 def main():
-    parser = ArgumentParser(description='Rating of films')
-    parser.add_argument('-s', '--students', type=str, default='students.json', help='Path to students-file')
-    parser.add_argument('-r', '--rooms', type=str, default='rooms.json', help='Path to rooms-file')
+    parser = ArgumentParser(description='Reading students.json and room.json')
+    parser.add_argument('-s', '--students', type=str, default='data/students.json', help='Path to students-file')
+    parser.add_argument('-r', '--rooms', type=str, default='data/rooms.json', help='Path to rooms-file')
     parser.add_argument('-f', '--format', type=str, default='json', help='Format output file')
     parser.add_argument('-res', '--result', type=str, default='result', help='Name output file. Enter the name of the resulting file without the extension')
 
@@ -113,7 +114,10 @@ def main():
     try:
         room_list = reading_room_file(args.rooms)
         result = creating_result(room_list, args.students)
+    except Exception as exc:
+        print('Incorrect path', exc)
 
+    try:
         if args.format.lower() == 'json':
             writing_json_file(result, args.result)
         elif args.format.lower() == 'xml':
@@ -121,7 +125,6 @@ def main():
 
     except Exception as exc:
         print('Try again!', exc)
-
 
 
 if __name__ == '__main__':
