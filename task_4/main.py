@@ -93,9 +93,11 @@ def read_student_file(st_path):
             sex = student['sex']
 
             insert_student_data(id_, name, room, sex, birthday)
+        file.close()
 
 
 def insert_room_data(id_, name_):
+
     query = "INSERT INTO rooms(id,name_room) " "VALUES(%s,%s)"
 
     args = (id_, name_)
@@ -124,9 +126,11 @@ def read_room_file(r_path):
 
         for room in rooms:
             insert_room_data(room['id'], room['name'])
+        file.close()
 
 
 def main():
+
     parser = ArgumentParser(description='MySQl task')
     parser.add_argument('-s', '--students', type=str, default='data/students.json', help='Path to students-file')
     parser.add_argument('-r', '--rooms', type=str, default='data/rooms.json', help='Path to rooms-file')
@@ -142,6 +146,13 @@ def main():
             raise ValueError
     except ValueError:
         print('Invalid output file extension. Try again!')
+
+    try:
+        read_room_file(args.rooms)
+        read_student_file(args.students)
+
+    except Exception as exc:
+        print('Try again!', exc)
 
     try:
         requests = [
@@ -168,15 +179,13 @@ def main():
         ]
         names_output_files = ['amount_st_in_room', 'avg_age', 'age_dif', 'sex_dif']
 
-        read_room_file(args.rooms)
-        read_student_file(args.students)
-
         for j, ind in enumerate(requests):
             result = query(ind)
+
             if args.format.lower() == 'json':
                 writing_json_file(result, names_output_files[j])
             else:
-                writing_xml_file(result,names_output_files[j])
+                writing_xml_file(result, names_output_files[j])
 
     except Exception as exc:
         print('Try again!', exc)
